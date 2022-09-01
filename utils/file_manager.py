@@ -2,6 +2,7 @@
 module contains class  FileManager
 """
 import json
+from typing import Union
 
 
 class FileManager:
@@ -23,25 +24,19 @@ class FileManager:
             return data
 
     @staticmethod
-    def save_to_json_file(dict_data: dict, path: str):
+    def save_to_file(input_data: Union[dict, str], path: str):
         """
-        static method to save dict to json file
-        :param dict_data: input data to save as json file
-        :type:dict_data: dict
-        :param path: path to save data as json file
+        static method to save dict to json or xml file
+        :param input_data: input data to save as json file
+        :type:input_data: dict or str
+        :param path: path to save data as json or xml file
         :type:path: str
         """
-        with open(path, "w") as outfile:
-            json.dump(dict_data, outfile)
-
-    @staticmethod
-    def save_to_xml_file(xml_data: str, path: str):
-        """
-        static method to save xml data to xml file
-        :param xml_data: input data to save as xml file
-        :type:xml_data: str
-        :param path: path to save data as xml file
-        :type:path: str
-        """
-        with open(path, "w") as outfile:
-            outfile.write(xml_data)
+        if path.endswith('.json'):
+            with open(path, "w") as outfile:
+                json.dump(input_data, outfile)
+        elif path.endswith('.xml'):
+            with open(path, "w") as outfile:
+                outfile.write(input_data)
+        else:
+            raise Exception("Wrong output file extension")

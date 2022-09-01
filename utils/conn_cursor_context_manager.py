@@ -7,7 +7,8 @@ import psycopg2
 
 class ConnectAndCursorManager:
     """
-    Class implements context manager to create and PostgreSQL and its cursor
+    Class implements context manager to create and PostgreSQL and its cursor. Returns cursor if everything works
+    properly.
     """
     def __init__(self, **kwargs):
         self.ps_connection = psycopg2.connect(**kwargs)
