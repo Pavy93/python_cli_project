@@ -1,7 +1,6 @@
 .idea/
 __pycache__/
 venv/
-*.json
 *.xml
 output/
 data/
