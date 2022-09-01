@@ -3,6 +3,7 @@ module contains class  FileManager
 """
 import json
 from typing import Union
+from utils.logger_util import Logger
 
 
 class FileManager:
@@ -12,13 +13,14 @@ class FileManager:
     """
 
     @staticmethod
-    def read_json_file(path: str) -> dict:
+    def read_json_file(path: str) -> Union[dict, list]:
         """
         static method to read json files
         :param path: path to read json file from
         :type:path: str
-        :return: dict of data
+        :return: list of dicts of data
         """
+        Logger().logger().info(f'Trying to read json file using path: {path}')
         with open(path) as data_file:
             data: dict = json.load(data_file)
             return data
@@ -33,9 +35,11 @@ class FileManager:
         :type:path: str
         """
         if path.endswith('.json'):
+            Logger().logger().info(f'Trying to save data as json file to "{path}"')
             with open(path, "w") as outfile:
                 json.dump(input_data, outfile)
         elif path.endswith('.xml'):
+            Logger().logger().info(f'Trying to save data as xml file to "{path}"')
             with open(path, "w") as outfile:
                 outfile.write(input_data)
         else:

@@ -6,12 +6,15 @@ import json
 from utils.conn_cursor_context_manager import ConnectAndCursorManager
 from utils.file_manager import FileManager
 from utils.sql_queries_collection import query_insert_data_to_rooms_table, query_insert_data_to_students_table,\
-    result_queries_list
+    QueryCreator
+from utils.logger_util import Logger
 
 
 @click.command()
-@click.option("--rooms-file", "-rf", default=None, help="Path to json file to insert data in rooms table.")
-@click.option("--students-file", "-sf", default=None, help="Path to json file to insert data in students table.")
+@click.option("--rooms-file", "-rf", default=None, help="Path to json file to insert data in rooms table.",
+              type=click.Path(exists=True, dir_okay=False))
+@click.option("--students-file", "-sf", default=None, help="Path to json file to insert data in students table.",
+              type=click.Path(exists=True, dir_okay=False))
 @click.option("--out-folder", "-outf", default='D:/docker/python_project/data',
               help="Folder where the results will be saved to.")
 @click.option("--out-files-extension", "-ofe", default=None, help="Extension of files where results of the queries will"
@@ -33,15 +36,24 @@ def work_with_postresql(rooms_file: str, students_file: str, out_folder: str, ou
 
     with ConnectAndCursorManager(**db_config) as cur:
         if rooms_file and students_file:
-            data_rooms = FileManager().read_json_file(rooms_file)
-            data_students = FileManager().read_json_file(students_file)
+            Logger().logger().info(f'Trying to insert data into rooms and students tables')
+            data_rooms: list = FileManager().read_json_file(rooms_file)
+            data_students: list = FileManager().read_json_file(students_file)
             cur.execute(query_insert_data_to_rooms_table, (json.dumps(data_rooms),))
             cur.execute(query_insert_data_to_students_table, (json.dumps(data_students),))
 
-        out_files_names: list = ['students_by_rooms_num', 'top_5_lowest_avg_age', 'top_5_highest_age_diff',
+        out_files_names: list = ['students_num', 'top_5_lowest_avg_age', 'top_5_highest_age_diff',
                                  'room_diversity_list']
 
         if out_files_extension:
+            Logger().logger().info('Trying to save results of the queries')
+            if out_files_extension == "json":
+                result_queries_list = QueryCreator().return_json_query(out_files_names)
+            elif out_files_extension == "xml":
+                result_queries_list = QueryCreator().return_xml_query(out_files_names)
+            else:
+                raise Exception('Value of out_files_extension is incorrect')
+
             for query, file_name in zip(result_queries_list, out_files_names):
                 cur.execute(query)
                 result: list = cur.fetchall()
